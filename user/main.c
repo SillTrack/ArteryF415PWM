@@ -511,6 +511,7 @@ void TMR2_GLOBAL_IRQHandler() {
 	}
 	else if(tmr_interrupt_flag_get(TMR2, TMR_OVF_FLAG) != RESET) {
 	//    /* add user code... */
+		// ADJUST PINS WITH ALTIUMDESIGN
 		PhaseA > PhaseB ? (void)(GPIOA->scr = GPIO_PINS_4) : (void)(GPIOA->clr = GPIO_PINS_4);
 		PhaseB > PhaseC ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
 		PhaseC > PhaseA ? (void)(GPIOA->scr = GPIO_PINS_6) : (void)(GPIOA->clr = GPIO_PINS_6);
@@ -602,6 +603,7 @@ int main(void)
 //  system_clock_config();
 
   at32_board_init();
+  PWMPinsInit();
   StatusLedInit();
   TMR1Init();
   DMAInit();
@@ -610,8 +612,8 @@ int main(void)
   TMR_Compare_Init();
   DMA_Compare_Init();
 
-  debug_periph_mode_set(DEBUG_TMR1_PAUSE, TRUE);
-  debug_periph_mode_set(DEBUG_TMR2_PAUSE, TRUE);
+//  debug_periph_mode_set(DEBUG_TMR1_PAUSE, TRUE);
+//  debug_periph_mode_set(DEBUG_TMR2_PAUSE, TRUE);
 
 
   while(1)
