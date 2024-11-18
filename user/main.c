@@ -36,7 +36,7 @@
 #define DELAY                            100
 #define FAST                             1
 #define SLOW                             4
-#define BUFF_SIZE						 25
+#define BUFF_SIZE						 50
 
 
 uint16_t PhaseA = 0;
@@ -53,27 +53,27 @@ crm_clocks_freq_type crm_clocks_freq_struct = {0};
 //};
 
 /* Array of 25 points frequency 400Hz / 10kHz */
-uint16_t srcBufferA[BUFF_SIZE] = {200, 241, 280, 313, 339, 355, 360, 355, 339, 313,
-		280, 241, 200, 159, 120,
-		87, 61, 45, 40, 45,
-		61, 87, 120, 159, 200
-};
+// uint16_t srcBufferA[BUFF_SIZE] = {200, 241, 280, 313, 339, 355, 360, 355, 339, 313,
+// 		280, 241, 200, 159, 120,
+// 		87, 61, 45, 40, 45,
+// 		61, 87, 120, 159, 200
+// };
 
-uint16_t srcBufferB[BUFF_SIZE] = {61, 45, 40, 45, 61,
-		87, 120, 159, 200, 241,
-		280, 313, 339, 355, 360,
-		355, 339, 313, 280, 241,
-		200, 159, 120, 87, 61
-};
+// uint16_t srcBufferB[BUFF_SIZE] = {61, 45, 40, 45, 61,
+// 		87, 120, 159, 200, 241,
+// 		280, 313, 339, 355, 360,
+// 		355, 339, 313, 280, 241,
+// 		200, 159, 120, 87, 61
+// };
 
-uint16_t srcBufferC[BUFF_SIZE] = {339, 313, 280, 241, 200,
-		159, 120, 87, 61, 45,
-		40, 45, 61, 87, 120,
-		159, 200, 241, 280, 313,
-		339, 355, 360, 355, 339
-};
+// uint16_t srcBufferC[BUFF_SIZE] = {339, 313, 280, 241, 200,
+// 		159, 120, 87, 61, 45,
+// 		40, 45, 61, 87, 120,
+// 		159, 200, 241, 280, 313,
+// 		339, 355, 360, 355, 339
+// };
 
-/* Array of 200 points frequency 50 Hz / 10kHz
+//  Array of 200 points frequency 50 Hz / 10kHz
 uint16_t srcBufferA[BUFF_SIZE] = {200, 220, 241, 260, 279, 296, 311, 325, 337, 346, 353, 358, 360, 359, 356,
 	     350, 342, 331, 318, 304, 287, 269, 250, 231, 210, 190, 169, 150, 131, 113,
 	      96,  82,  69,  58,  50,  44,  41,  40,  42,  47,  54,  63,  75,  89, 104,
@@ -91,7 +91,7 @@ uint16_t srcBufferC[BUFF_SIZE] = {61,  52,  46,  42,  40,  41,  45,  51,  60,  7
 	     357, 352, 345, 335, 323, 309, 293, 276, 257, 237, 217, 197, 176, 156, 137,
 	     119, 102,  86,  73,  61
 };
-*/
+
 
 //uint8_t srcBuffer[BUFF_SIZE] = {25, 100, 210};
 tmr_output_config_type tmr_output_struct;
@@ -178,6 +178,37 @@ void PWMPinsInit(void) {
 	gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
 	gpio_init(GPIOB, &gpio_init_struct); //
 
+}
+
+static void tmr1_config(void)
+{
+  gpio_init_type gpio_initstructure;
+  tmr_output_config_type tmr_oc_init_structure;
+  crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
+
+  gpio_default_para_init(&gpio_initstructure);
+  gpio_initstructure.gpio_mode = GPIO_MODE_MUX;
+  gpio_initstructure.gpio_pins = GPIO_PINS_8;
+  gpio_initstructure.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
+  gpio_initstructure.gpio_pull = GPIO_PULL_NONE;
+  gpio_initstructure.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
+  gpio_init(GPIOA, &gpio_initstructure);
+
+
+
+  crm_periph_clock_enable(CRM_TMR1_PERIPH_CLOCK, TRUE);
+
+
+  tmr_base_init(TMR1, 400, 0);
+  tmr_cnt_dir_set(TMR1, TMR_COUNT_UP);
+
+  tmr_output_default_para_init(&tmr_oc_init_structure);
+  tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
+  tmr_oc_init_structure.oc_polarity = TMR_OUTPUT_ACTIVE_LOW;
+  tmr_oc_init_structure.oc_output_state = TRUE;
+  tmr_oc_init_structure.oc_idle_state = FALSE;
+  tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_1, &tmr_oc_init_structure);
+  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_1, srcBufferA[0]);
 }
 
 void TMR1Init() {
@@ -652,8 +683,8 @@ int main(void)
 
   StatusLedInit();
 
-  PWMPinsInit();
-  TMR1Init();
+//   PWMPinsInit();
+  tmr1_config();
   DMAInit();
 
   Compare_Pins_Init();
