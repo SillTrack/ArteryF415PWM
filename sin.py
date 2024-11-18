@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Параметры
-mean_value = 200
-amplitude = 180
-num_samples = 50  # количество точек на графике
+mean_value = 100
+amplitude = 80
+num_samples = 25  # количество точек на графике
 
 # Генерация значений от 0 до 2pi
 x = np.linspace(0, 2 * np.pi, num_samples)
@@ -14,9 +14,10 @@ sin_1 = mean_value + amplitude * np.sin(x)
 sin_2 = mean_value + amplitude * np.sin(x + np.deg2rad(120))  # с начальной фазой +120 градусов
 sin_3 = mean_value + amplitude * np.sin(x - np.deg2rad(120))  # с начальной фазой -120 градусов
 
-print(np.round(sin_1).astype(int))
-print(np.round(sin_2).astype(int))
-print(np.round(sin_3).astype(int))
+
+print(np.array2string(np.round(sin_1).astype(int), separator=", "))
+print(np.array2string(np.round(sin_2).astype(int), separator=", "))
+print(np.array2string(np.round(sin_3).astype(int), separator=", "))
 
 # Подготовка для графика
 plt.figure(figsize=(10, 9))
