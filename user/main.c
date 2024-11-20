@@ -191,14 +191,14 @@ static void tmr1_config(void)
   tmr_oc_init_structure.oc_output_state = TRUE;
   tmr_oc_init_structure.oc_idle_state = FALSE;
   tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_2, &tmr_oc_init_structure);
-  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_2, srcBufferB[0]);
+  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_2, srcBufferС[0]);
 
     tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
     tmr_oc_init_structure.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
     tmr_oc_init_structure.oc_output_state = TRUE;
     tmr_oc_init_structure.oc_idle_state = FALSE;
     tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_3, &tmr_oc_init_structure);
-    tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_3, srcBufferC[0]);
+    tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_3, srcBufferB[0]);
   /* overflow interrupt enable */
        tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
        tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
@@ -244,7 +244,7 @@ void DMAInit() {
 	dma_reset(DMA1_CHANNEL3);
 	dma_init_struct.buffer_size = BUFF_SIZE;
 	dma_init_struct.direction = DMA_DIR_MEMORY_TO_PERIPHERAL;
-	dma_init_struct.memory_base_addr = (uint32_t)srcBufferB;
+	dma_init_struct.memory_base_addr = (uint32_t)srcBufferC;
 	//	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_WORD;
 	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_HALFWORD;
 	dma_init_struct.memory_inc_enable = TRUE;
@@ -270,7 +270,7 @@ void DMAInit() {
     	dma_reset(DMA1_CHANNEL6);
     	dma_init_struct.buffer_size = BUFF_SIZE;
     	dma_init_struct.direction = DMA_DIR_MEMORY_TO_PERIPHERAL;
-    	dma_init_struct.memory_base_addr = (uint32_t)srcBufferC;
+    	dma_init_struct.memory_base_addr = (uint32_t)srcBufferB;
     //	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_WORD;
     	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_HALFWORD;
     	dma_init_struct.memory_inc_enable = TRUE;
