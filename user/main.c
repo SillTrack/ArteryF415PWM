@@ -464,7 +464,9 @@ void TMR2_GLOBAL_IRQHandler() {
 		srcBufferB[PhaseIndex] > srcBufferC[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
 		srcBufferC[PhaseIndex] > srcBufferA[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_4) : (void)(GPIOA->clr = GPIO_PINS_4);
 
-		PhaseIndex+=1;
+		PhaseIndex += 1;
+		if (PhaseIndex >= 50)
+			PhaseIndex = 0
 		tmr_flag_clear(TMR2, TMR_OVF_FLAG);
 	}
 }
