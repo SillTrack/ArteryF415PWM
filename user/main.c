@@ -42,6 +42,7 @@
 uint16_t PhaseA = 0;
 uint16_t PhaseB = 0;
 uint16_t PhaseC = 0;
+uint8_t PhaseIndex = 0;
 crm_clocks_freq_type crm_clocks_freq_struct = {0};
 //uint32_t srcBuffer[BUFF_SIZE] = {500, 1000, 1600, 2000, 2500,  3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9999};
 
@@ -459,10 +460,11 @@ void TMR2_GLOBAL_IRQHandler() {
 		// PhaseB = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_2);
 		// PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
 
-		PhaseA > PhaseB ? (void)(GPIOA->scr = GPIO_PINS_6) : (void)(GPIOA->clr = GPIO_PINS_6);
-		PhaseB > PhaseC ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
-		PhaseC > PhaseA ? (void)(GPIOA->scr = GPIO_PINS_4) : (void)(GPIOA->clr = GPIO_PINS_4);
+		srcBufferA[PhaseIndex] > srcBufferB[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_6) : (void)(GPIOA->clr = GPIO_PINS_6);
+		srcBufferB[PhaseIndex] > srcBufferC[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
+		srcBufferC[PhaseIndex] > srcBufferA[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_4) : (void)(GPIOA->clr = GPIO_PINS_4);
 
+		PhaseIndex+=1;
 		tmr_flag_clear(TMR2, TMR_OVF_FLAG);
 	}
 }
