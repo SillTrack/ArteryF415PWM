@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Параметры
-mean_value = 100
-amplitude = 80
-num_samples = 25  # количество точек на графике
+mean_value = 314
+amplitude = 251
+num_samples = 50  # количество точек на графике
 
 # Генерация значений от 0 до 2pi
 x = np.linspace(0, 2 * np.pi, num_samples)
