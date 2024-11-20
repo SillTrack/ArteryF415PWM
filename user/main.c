@@ -223,7 +223,7 @@ static void tmr1_config(void)
     tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_3, &tmr_oc_init_structure);
     tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_3, srcBufferC[0]);
   /* overflow interrupt enable */
-    //    tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
        tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
        tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
        tmr_interrupt_enable(TMR1, TMR_C3_INT, TRUE);
@@ -378,6 +378,10 @@ void TMR1_OVF_TMR10_IRQHandler(void)
      //GPIOA->scr = GPIO_PINS_8;
      //GPIOB->scr = GPIO_PINS_14;
      //GPIOB->scr = GPIO_PINS_15;
+      dma_channel_enable(DMA1_CHANNEL2, TRUE);
+      dma_channel_enable(DMA1_CHANNEL3, TRUE);
+    dma_channel_enable(DMA1_CHANNEL6, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_OVF_INT, FALSE);
 
     tmr_flag_clear(TMR1, TMR_OVF_FLAG);
   }
@@ -523,19 +527,17 @@ int main(void)
   StatusLedInit();
 
 //   PWMPinsInit();
-  tmr1_config();
   DMAInit();
 
   Compare_Pins_Init();
   TMR_Compare_Init();
 
+  tmr1_config();
+
 
   tmr_counter_enable(TMR1, TRUE);
-      dma_channel_enable(DMA1_CHANNEL2, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_1, TRUE);
-      dma_channel_enable(DMA1_CHANNEL3, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_2C, TRUE);
-    dma_channel_enable(DMA1_CHANNEL6, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_3C, TRUE);
   tmr_output_enable(TMR1, TRUE);
   tmr_counter_enable(TMR2, TRUE);
