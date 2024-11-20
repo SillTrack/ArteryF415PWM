@@ -332,9 +332,7 @@ void DMAInit() {
 
 //END OF SETTiNGS FOR CH4 of TMR1 and CH4 of DMA1 for phase C
 
-    dma_channel_enable(DMA1_CHANNEL2, TRUE);
-    dma_channel_enable(DMA1_CHANNEL3, TRUE);
-    dma_channel_enable(DMA1_CHANNEL6, TRUE);
+
 }
 
 void DMA1_Channel2_IRQHandler() {
@@ -533,11 +531,14 @@ int main(void)
 
 
   tmr_counter_enable(TMR1, TRUE);
+    tmr_output_enable(TMR1, TRUE);
+  tmr_counter_enable(TMR2, TRUE);
+  dma_channel_enable(DMA1_CHANNEL2, TRUE);
+  dma_channel_enable(DMA1_CHANNEL3, TRUE);
+  dma_channel_enable(DMA1_CHANNEL6, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_1, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_2C, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_3C, TRUE);
-  tmr_output_enable(TMR1, TRUE);
-  tmr_counter_enable(TMR2, TRUE);
   debug_periph_mode_set(DEBUG_TMR1_PAUSE, TRUE);
   while(1)
   {
