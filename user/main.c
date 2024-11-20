@@ -109,28 +109,6 @@ void StatusLedInit(void) {
 	gpio_bits_reset(GPIOA, GPIO_PINS_0);
 }
 
-void DMA1_Channel1_IRQHandler(void) {
-	if(dma_interrupt_flag_get(DMA1_FDT1_FLAG) != RESET)
-		    {
-
-		        dma_flag_clear(DMA1_FDT1_FLAG);
-
-		    }
-}
-
-
-void TMR4_GLOBAL_IRQHandler() {
-	if(tmr_interrupt_flag_get(TMR4, TMR_C1_FLAG) != RESET) {
-		gpio_bits_set(GPIOA, GPIO_PINS_0);
-		tmr_flag_clear(TMR4, TMR_C1_FLAG);
-	}
-	else if(tmr_interrupt_flag_get(TMR4, TMR_OVF_FLAG) != RESET) {
-		//    /* add user code... */
-	    	gpio_bits_reset(GPIOA, GPIO_PINS_0);
-			tmr_flag_clear(TMR4, TMR_OVF_FLAG);
-		}
-}
-
 void PWMPinsInit(void) {
 	/*	PWM PINS ARE:
  	*  PA8 for phase A
@@ -195,10 +173,7 @@ static void tmr1_config(void)
   gpio_initstructure.gpio_pins = GPIO_PINS_14;
   gpio_init(GPIOB, &gpio_initstructure);
   gpio_initstructure.gpio_pins = GPIO_PINS_15;
-    gpio_init(GPIOB, &gpio_initstructure);
-  GPIOB->scr = GPIO_PINS_14;
-  GPIOB->scr = GPIO_PINS_15;
-
+	gpio_init(GPIOB, &gpio_initstructure);
 
   tmr_base_init(TMR1, 626, 0);
   tmr_cnt_dir_set(TMR1, TMR_COUNT_UP);
@@ -225,193 +200,16 @@ static void tmr1_config(void)
     tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_3, &tmr_oc_init_structure);
     tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_3, srcBufferC[0]);
   /* overflow interrupt enable */
-       // tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
-       // tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
-       // tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
-//        tmr_interrupt_enable(TMR1, TMR_C3_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_C3_INT, TRUE);
         /* tmr1 overflow interrupt nvic init */
-//        nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
-//        nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
-//        nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
+       nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
+       nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
+       nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
 }
 
-void TMR1Init() {
-	  /* get system clock */
-	  crm_clocks_freq_get(&crm_clocks_freq_struct);
-	  /* enable tmr1 clock */
-	  crm_periph_clock_enable(CRM_TMR1_PERIPH_CLOCK, TRUE);
-
-
-	  /* tmr1 configuration */
-	  /* time base configuration */
-	  // div is 144000000/ n
-	  /* systemclock/ div / tmr value = f (hz) */
-	  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
-	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-	 tmr_base_init(TMR1, 628, 0);
-	//	  tmr_base_init(TMR1, 248, (crm_clocks_freq_struct.ahb_freq / 10000000) - 1);
-	  tmr_cnt_dir_set(TMR1, TMR_COUNT_UP);
-
-
-	  /* overflow interrupt enable */
-	  tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
-	  tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
-	  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_1, srcBufferA[0]);
-	  /* tmr1 overflow interrupt nvic init */
-	  nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
-	  nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
-	  nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
-
-
-	  /* channel 1 configuration in output mode */
-	  tmr_output_default_para_init(&tmr_output_struct);
-	  tmr_output_struct.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
-	  tmr_output_struct.oc_output_state = TRUE;
-	  tmr_output_struct.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
-	  tmr_output_struct.oc_idle_state = FALSE;
-
-
-	  /* channel 1 */
-	  tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_1, &tmr_output_struct);
-	  tmr_output_channel_buffer_enable(TMR1, TMR_SELECT_CHANNEL_1, TRUE);
-
-	  tmr_period_buffer_enable(TMR1, TRUE);
-
-
-	  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_1, srcBufferA[0]);
-
-
-
-
-
-
-	  /* tmr1 configuration */
-	  /* time base configuration */
-	  // div is 144000000/ n
-	  /* systemclock/ div / tmr value = f (hz) */
-	  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
-	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-
-
-
-	  /* overflow interrupt enable */
-	  tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
-	  tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
-	  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_1, srcBufferA[0]);
-	  /* tmr1 overflow interrupt nvic init */
-	  nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
-	  nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
-	  nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
-
-
-	  /* channel 1 configuration in output mode */
-	  tmr_output_default_para_init(&tmr_output_struct);
-	  tmr_output_struct.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
-	  tmr_output_struct.oc_output_state = TRUE;
-	  tmr_output_struct.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
-	  tmr_output_struct.oc_idle_state = FALSE;
-
-
-	// 	  /* channel 1 */
-	// 	  tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_2, &tmr_output_struct);
-	// 	  tmr_output_channel_buffer_enable(TMR1, TMR_SELECT_CHANNEL_2, TRUE);
-
-	// 	  tmr_period_buffer_enable(TMR1, TRUE);
-
-
-	// 	  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_2, srcBufferB[0]);
-
-
-
-
-
-
-
-
-	// 	  /* tmr1 configuration */
-	// 	  /* time base configuration */
-	// 	  // div is 144000000/ n
-	// 	  /* systemclock/ div / tmr value = f (hz) */
-	// 	  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
-	// //	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-
-
-	// 	  /* overflow interrupt enable */
-	// 	  tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
-	// 	  tmr_interrupt_enable(TMR1, TMR_C4_INT, TRUE);
-	// 	  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_4, srcBufferC[0]);
-	// 	  /* tmr1 overflow interrupt nvic init */
-	// 	  nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
-	// 	  nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
-	// 	  nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
-
-
-	// 	  /* channel 1 configuration in output mode */
-	// 	  tmr_output_default_para_init(&tmr_output_struct);
-	// 	  tmr_output_struct.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
-	// 	  tmr_output_struct.oc_output_state = TRUE;
-	// 	  tmr_output_struct.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
-	// 	  tmr_output_struct.oc_idle_state = FALSE;
-
-
-	// 	  /* channel 1 */
-	// 	  tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_4, &tmr_output_struct);
-	// 	  tmr_output_channel_buffer_enable(TMR1, TMR_SELECT_CHANNEL_4, TRUE);
-
-	// 	  tmr_period_buffer_enable(TMR1, TRUE);
-
-
-	// 	  tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_4, srcBufferC[0]);
-}
-
-// void TMR9Init() {
-// 	  /* get system clock */
-// 	  crm_clocks_freq_get(&crm_clocks_freq_struct);
-// 	  /* enable tmr1 clock */
-// 	  crm_periph_clock_enable(CRM_TMR9_PERIPH_CLOCK, TRUE);
-
-
-// 	  /* tmr1 configuration */
-// 	  /* time base configuration */
-// 	  // div is 144000000/ n
-// 	  /* systemclock/ div / tmr value = f (hz) */
-// 	  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
-// 	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-// 	  tmr_base_init(TMR1, 400, 0);
-// 	//	  tmr_base_init(TMR1, 248, (crm_clocks_freq_struct.ahb_freq / 10000000) - 1);
-// 	  tmr_cnt_dir_set(TMR1, TMR_COUNT_UP);
-
-
-// 	  /* overflow interrupt enable */
-
-// 	  /* tmr1 overflow interrupt nvic init */
-// 	  /* channel 1 configuration in output mode */
-// 	  tmr_output_default_para_init(&tmr_output_struct);
-// 	  tmr_output_struct.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
-// 	  tmr_output_struct.oc_output_state = TRUE;
-// 	  tmr_output_struct.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
-// 	  tmr_output_struct.oc_idle_state = FALSE;
-
-
-// 	  /* channel 1 */
-// 	  tmr_output_channel_config(TMR9, TMR_SELECT_CHANNEL_1, &tmr_output_struct);
-// 	  tmr_output_channel_buffer_enable(TMR9, TMR_SELECT_CHANNEL_1, TRUE);
-// 	  tmr_channel_value_set(TMR9, TMR_SELECT_CHANNEL_1, srcBufferB[0]);
-
-
-// 	  tmr_output_channel_config(TMR9, TMR_SELECT_CHANNEL_2, &tmr_output_struct);
-// 	  tmr_output_channel_buffer_enable(TMR9, TMR_SELECT_CHANNEL_2, TRUE);
-// 	  tmr_channel_value_set(TMR9, TMR_SELECT_CHANNEL_2, srcBufferC[0]);
-
-// 	  tmr_period_buffer_enable(TMR9, TRUE);
-
-// 	  /* tmr1 configuration */
-// 	  /* time base configuration */
-// 	  // div is 144000000/ n
-// 	  /* systemclock/ div / tmr value = f (hz) */
-// 	  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
-// 	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-// }
 
 void DMAInit() {
 	  /* dma config for tmr1 overflow dma request */
@@ -419,14 +217,14 @@ void DMAInit() {
 	crm_periph_clock_enable(CRM_DMA1_PERIPH_CLOCK, TRUE);
 
 
-//	CH1 of TMR1 and CH2 of DMA1 for phase A
+	//	CH1 of TMR1 and CH2 of DMA1 for phase A
 	tmr_dma_request_enable(TMR1, TMR_C1_DMA_REQUEST, TRUE);
 
 	dma_reset(DMA1_CHANNEL2);
 	dma_init_struct.buffer_size = BUFF_SIZE;
 	dma_init_struct.direction = DMA_DIR_MEMORY_TO_PERIPHERAL;
 	dma_init_struct.memory_base_addr = (uint32_t)srcBufferA;
-//	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_WORD;
+	//	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_WORD;
 	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_HALFWORD;
 	dma_init_struct.memory_inc_enable = TRUE;
 	dma_init_struct.peripheral_base_addr = (uint32_t)&TMR1->c1dt;
@@ -440,14 +238,6 @@ void DMAInit() {
 
 	dma_init(DMA1_CHANNEL2, &dma_init_struct);
 
-    // enable transfer full data interrupt
-    dma_interrupt_enable(DMA1_CHANNEL2, DMA_FDT_INT, TRUE);
-	//END OF SETTiNGS FOR CH1 of TMR1 and CH2 of DMA1 for phase A
-
-
-	//	CH2 of TMR1 and CH3 of DMA1 for phase B
-    // dma channel1 and 2 interrupt nvic init
-    nvic_irq_enable(DMA1_Channel2_IRQn, 0, 0);
 
 	tmr_dma_request_enable(TMR1, TMR_C2_DMA_REQUEST, TRUE);
 
@@ -465,21 +255,14 @@ void DMAInit() {
 	dma_init_struct.loop_mode_enable = TRUE;
 
 
-//	dma_flexible_config(DMA1, FLEX_CHANNEL2, DMA_FLEXIBLE_TMR1_OVERFLOW);
+	//	dma_flexible_config(DMA1, FLEX_CHANNEL2, DMA_FLEXIBLE_TMR1_OVERFLOW);
 
 	dma_init(DMA1_CHANNEL3, &dma_init_struct);
 
-    // enable transfer full data interrupt
-    dma_interrupt_enable(DMA1_CHANNEL3, DMA_FDT_INT, TRUE);
 
+	//END OF SETTiNGS FOR CH2 of TMR1 and CH3 of DMA1 for phase B
 
-    // dma channel1 and 2 interrupt nvic init
-    nvic_irq_enable(DMA1_Channel3_IRQn, 0, 0);
-
-
-//END OF SETTiNGS FOR CH2 of TMR1 and CH3 of DMA1 for phase B
-
-//CH4 of TMR1 and CH4 of DMA1 for phase B
+	//CH4 of TMR1 and CH4 of DMA1 for phase B
         // dma channel1 and 2 interrupt nvic init
 
     	tmr_dma_request_enable(TMR1, TMR_C3_DMA_REQUEST, TRUE);
@@ -502,52 +285,13 @@ void DMAInit() {
 
     	dma_init(DMA1_CHANNEL6, &dma_init_struct);
 
-        // enable transfer full data interrupt
-        dma_interrupt_enable(DMA1_CHANNEL6, DMA_FDT_INT, TRUE);
 
 
-        // dma channel1 and 2 interrupt nvic init
-        nvic_irq_enable(DMA1_Channel6_IRQn, 0, 0);
-
-
-//END OF SETTiNGS FOR CH4 of TMR1 and CH4 of DMA1 for phase C
+	//END OF SETTiNGS FOR CH4 of TMR1 and CH4 of DMA1 for phase C
 
     dma_channel_enable(DMA1_CHANNEL2, TRUE);
     dma_channel_enable(DMA1_CHANNEL3, TRUE);
     dma_channel_enable(DMA1_CHANNEL6, TRUE);
-}
-
-void DMA1_Channel2_IRQHandler() {
-	if(dma_interrupt_flag_get(DMA1_FDT2_FLAG) != RESET)
-	    {
-
-	        dma_flag_clear(DMA1_FDT2_FLAG);
-
-	    }
-}
-
-void DMA1_Channel3_IRQHandler() {
-	if(dma_interrupt_flag_get(DMA1_FDT3_FLAG) != RESET)
-	    {
-
-	        dma_flag_clear(DMA1_FDT3_FLAG);
-
-	    }
-}
-
-void DMA1_Channel5_IRQHandler() {
-	if(dma_interrupt_flag_get(DMA1_FDT5_FLAG) != RESET)
-	    {
-	        dma_flag_clear(DMA1_FDT5_FLAG);
-	    }
-}
-void DMA1_Channel6_IRQHandler() {
-	if(dma_interrupt_flag_get(DMA1_FDT6_FLAG) != RESET)
-	    {
-
-	        dma_flag_clear(DMA1_FDT6_FLAG);
-
-	    }
 }
 
 
@@ -568,9 +312,7 @@ void TMR1_OVF_TMR10_IRQHandler(void)
 void TMR1_CH_IRQHandler(void) {
 
 	if(tmr_interrupt_flag_get(TMR1, TMR_C1_FLAG) != RESET) {
-//		uint32_t channelValue = 0;
-
-
+	//	uint32_t channelValue = 0;
 		// GPIOA->clr = GPIO_PINS_8;
 		PhaseA = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_1);
 		tmr_flag_clear(TMR1, TMR_C1_FLAG);
@@ -582,7 +324,6 @@ void TMR1_CH_IRQHandler(void) {
  	else if(tmr_interrupt_flag_get(TMR1, TMR_C3_FLAG) != RESET) {
 		PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
 		tmr_flag_clear(TMR1, TMR_C3_FLAG);
-
  	  }
 }
 
@@ -600,7 +341,7 @@ void TMR_Compare_Init() {
 		  /* systemclock/ div / tmr value = f (hz) */
 		  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
 	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-		  tmr_base_init(TMR2, 627, 0);
+		  tmr_base_init(TMR2, 626, 0);
 	//	  tmr_base_init(TMR1, 248, (crm_clocks_freq_struct.ahb_freq / 10000000) - 1);
 		  tmr_cnt_dir_set(TMR2, TMR_COUNT_UP);
 
@@ -638,9 +379,9 @@ void TMR2_GLOBAL_IRQHandler() {
 	else if(tmr_interrupt_flag_get(TMR2, TMR_OVF_FLAG) != RESET) {
 	//    /* add user code... */
 		// ADJUST PINS WITH ALTIUMDESIGN
-		PhaseA = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_1);
-		PhaseB = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_2);
-		PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
+		// PhaseA = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_1);
+		// PhaseB = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_2);
+		// PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
 
 		PhaseA > PhaseB ? (void)(GPIOA->scr = GPIO_PINS_6) : (void)(GPIOA->clr = GPIO_PINS_6);
 		PhaseB > PhaseC ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
@@ -685,9 +426,9 @@ void Compare_Pins_Init() {
 		gpio_init_struct.gpio_pull = GPIO_PULL_NONE;
 		gpio_init(GPIOA, &gpio_init_struct); //
 
-		GPIOA->scr = GPIO_PINS_4;
-		GPIOA->scr = GPIO_PINS_5;
-		GPIOA->scr = GPIO_PINS_6;
+		// GPIOA->scr = GPIO_PINS_4;
+		// GPIOA->scr = GPIO_PINS_5;
+		// GPIOA->scr = GPIO_PINS_6;
 }
 
 
