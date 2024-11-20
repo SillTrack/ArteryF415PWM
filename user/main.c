@@ -223,14 +223,14 @@ static void tmr1_config(void)
     tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_3, &tmr_oc_init_structure);
     tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_3, srcBufferC[0]);
   /* overflow interrupt enable */
-       // tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
-       // tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
-       // tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
-//        tmr_interrupt_enable(TMR1, TMR_C3_INT, TRUE);
+    //    tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
+       tmr_interrupt_enable(TMR1, TMR_C3_INT, TRUE);
         /* tmr1 overflow interrupt nvic init */
-//        nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
-//        nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
-//        nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
+       nvic_priority_group_config(NVIC_PRIORITY_GROUP_4);
+       nvic_irq_enable(TMR1_OVF_TMR10_IRQn, 0, 0);
+       nvic_irq_enable(TMR1_CH_IRQn, 0, 0);
 }
 
 void DMAInit() {
@@ -402,7 +402,6 @@ void TMR1_CH_IRQHandler(void) {
  	else if(tmr_interrupt_flag_get(TMR1, TMR_C3_FLAG) != RESET) {
 		PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
 		tmr_flag_clear(TMR1, TMR_C3_FLAG);
-
  	  }
 }
 
@@ -420,7 +419,7 @@ void TMR_Compare_Init() {
 		  /* systemclock/ div / tmr value = f (hz) */
 		  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
 	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-		  tmr_base_init(TMR2, 627, 0);
+		  tmr_base_init(TMR2, 626, 0);
 	//	  tmr_base_init(TMR1, 248, (crm_clocks_freq_struct.ahb_freq / 10000000) - 1);
 		  tmr_cnt_dir_set(TMR2, TMR_COUNT_UP);
 
@@ -458,9 +457,9 @@ void TMR2_GLOBAL_IRQHandler() {
 	else if(tmr_interrupt_flag_get(TMR2, TMR_OVF_FLAG) != RESET) {
 	//    /* add user code... */
 		// ADJUST PINS WITH ALTIUMDESIGN
-		PhaseA = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_1);
-		PhaseB = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_2);
-		PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
+		// PhaseA = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_1);
+		// PhaseB = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_2);
+		// PhaseC = tmr_channel_value_get(TMR1, TMR_SELECT_CHANNEL_3);
 
 		PhaseA > PhaseB ? (void)(GPIOA->scr = GPIO_PINS_6) : (void)(GPIOA->clr = GPIO_PINS_6);
 		PhaseB > PhaseC ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
