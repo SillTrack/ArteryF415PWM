@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Параметры
-mean_value = 314
-amplitude = 251
-num_samples = 50  # количество точек на графике
+mean_value = 3600
+amplitude = 2880
+num_samples = 51  # количество точек на графике
 
 # Генерация значений от 0 до 2pi
 x = np.linspace(0, 2 * np.pi, num_samples)
@@ -35,4 +35,6 @@ plt.xticks(np.arange(0, 2 * np.pi + np.pi / 2, np.pi / 2),
 plt.legend()
 plt.grid(True)
 plt.ylim(0, mean_value + amplitude + 100)  # Ося по Y от 0 до max значения
-plt.show()
+# plt.show()
+
+print(np.round(3.5).astype(int))

@@ -71,22 +71,27 @@ crm_clocks_freq_type crm_clocks_freq_struct = {0};
 //		 360, 358, 354, 348, 339
 //};
 //  Array of 50 points frequency 400 Hz / 20kHz
-uint16_t srcBufferA[BUFF_SIZE] = {314, 346, 378, 408, 437, 464, 489, 510, 529, 544, 555, 562, 565, 564, 559,
-		 550, 537, 520, 500, 477, 451, 423, 393, 362, 330, 298, 266, 235, 205, 177,
-		 151, 128, 108,  91,  78,  69,  64,  63,  66,  73,  84,  99, 118, 139, 164,
-		 191, 220, 250, 282, 314
+
+
+uint16_t srcBufferA[BUFF_SIZE] = {3600, 3961, 4316, 4660, 4987, 5293, 5571, 5819, 6032, 6206, 6339, 6429,
+		 6474, 6474, 6429, 6339, 6206, 6032, 5819, 5571, 5293, 4987, 4660, 4316,
+		 3961, 3600, 3239, 2884, 2540, 2213, 1907, 1629, 1381, 1168,  994,  861,
+		  771,  726,  726,  771,  861,  994, 1168, 1381, 1629, 1907, 2213, 2540,
+		 2884, 3239
 };
 
-uint16_t srcBufferB[BUFF_SIZE] = {97,  82,  72,  65,  63,  65,  71,  80,  94, 111, 132, 155, 182, 210, 240,
-		 271, 303, 335, 367, 398, 428, 455, 481, 503, 523, 539, 551, 560, 564, 565,
-		 561, 553, 541, 526, 507, 485, 460, 432, 403, 372, 341, 309, 277, 245, 215,
-		 186, 160, 136, 114,  97
+uint16_t srcBufferB[BUFF_SIZE] = {1106,  945,  826,  751,  721,  736,  796,  901, 1048, 1235, 1460, 1718,
+		 2006, 2319, 2653, 3001, 3359, 3721, 4080, 4432, 4771, 5092, 5389, 5658,
+		 5894, 6094, 6255, 6374, 6449, 6479, 6464, 6404, 6299, 6152, 5965, 5740,
+		 5482, 5194, 4881, 4547, 4199, 3841, 3479, 3120, 2768, 2429, 2108, 1811,
+		 1542, 1306
 };
 
-uint16_t srcBufferC[BUFF_SIZE] = {531, 514, 492, 468, 442, 413, 383, 351, 319, 287, 256, 225, 196, 168, 143,
-		 121, 102,  87,  75,  67,  63,  64,  68,  77,  89, 105, 125, 147, 173, 200,
-		 230, 261, 293, 325, 357, 388, 418, 446, 473, 496, 517, 534, 548, 557, 563,
-		 565, 563, 556, 546, 531
+uint16_t srcBufferC[BUFF_SIZE] = {6094, 5894, 5658, 5389, 5092, 4771, 4432, 4080, 3721, 3359, 3001, 2653,
+		 2319, 2006, 1718, 1460, 1235, 1048,  901,  796,  736,  721,  751,  826,
+		  945, 1106, 1306, 1542, 1811, 2108, 2429, 2768, 3120, 3479, 3841, 4199,
+		 4547, 4881, 5194, 5482, 5740, 5965, 6152, 6299, 6404, 6464, 6479, 6449,
+		 6374, 6255
 };
 
 
@@ -183,41 +188,45 @@ static void tmr1_config(void)
   tmr_output_config_type tmr_oc_init_structure;
   crm_periph_clock_enable(CRM_GPIOA_PERIPH_CLOCK, TRUE);
   crm_periph_clock_enable(CRM_TMR1_PERIPH_CLOCK, TRUE);
+  crm_periph_clock_enable(CRM_TMR3_PERIPH_CLOCK, TRUE);
   crm_periph_clock_enable(CRM_GPIOB_PERIPH_CLOCK, TRUE);
 
   gpio_default_para_init(&gpio_initstructure);
   gpio_initstructure.gpio_mode = GPIO_MODE_MUX;
-  gpio_initstructure.gpio_pins = GPIO_PINS_8;
+  gpio_initstructure.gpio_pins = GPIO_PINS_13;
   gpio_initstructure.gpio_out_type = GPIO_OUTPUT_PUSH_PULL;
   gpio_initstructure.gpio_pull = GPIO_PULL_NONE;
   gpio_initstructure.gpio_drive_strength = GPIO_DRIVE_STRENGTH_STRONGER;
-  gpio_init(GPIOA, &gpio_initstructure);
+  gpio_init(GPIOB, &gpio_initstructure);
 
   gpio_initstructure.gpio_pins = GPIO_PINS_14;
   gpio_init(GPIOB, &gpio_initstructure);
   gpio_initstructure.gpio_pins = GPIO_PINS_15;
     gpio_init(GPIOB, &gpio_initstructure);
 
-
-  tmr_base_init(TMR1, 626, 0);
+    crm_clocks_freq_get(&crm_clocks_freq_struct);
+    tmr_internal_clock_set(TMR1);
+    uint16_t timer_period = (crm_clocks_freq_struct.sclk_freq / 20000 ) - 1;
+  tmr_base_init(TMR1, timer_period, 1);
+//  tmr_base_init(TMR3, timer_period, 0);
   tmr_cnt_dir_set(TMR1, TMR_COUNT_UP);
 
   tmr_output_default_para_init(&tmr_oc_init_structure);
-  tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
+  tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_B;
   tmr_oc_init_structure.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
   tmr_oc_init_structure.oc_output_state = TRUE;
   tmr_oc_init_structure.oc_idle_state = FALSE;
   tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_1, &tmr_oc_init_structure);
   tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_1, srcBufferA[0]);
 
-  tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
+  tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_B;
   tmr_oc_init_structure.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
   tmr_oc_init_structure.oc_output_state = TRUE;
   tmr_oc_init_structure.oc_idle_state = FALSE;
   tmr_output_channel_config(TMR1, TMR_SELECT_CHANNEL_2, &tmr_oc_init_structure);
   tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_2, srcBufferB[0]);
 
-    tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_A;
+    tmr_oc_init_structure.oc_mode = TMR_OUTPUT_CONTROL_PWM_MODE_B;
     tmr_oc_init_structure.oc_polarity = TMR_OUTPUT_ACTIVE_HIGH;
     tmr_oc_init_structure.oc_output_state = TRUE;
     tmr_oc_init_structure.oc_idle_state = FALSE;
@@ -225,6 +234,8 @@ static void tmr1_config(void)
     tmr_channel_value_set(TMR1, TMR_SELECT_CHANNEL_3, srcBufferC[0]);
   /* overflow interrupt enable */
     //    tmr_interrupt_enable(TMR1, TMR_OVF_INT, TRUE);
+
+
        tmr_interrupt_enable(TMR1, TMR_C1_INT, TRUE);
        tmr_interrupt_enable(TMR1, TMR_C2_INT, TRUE);
        tmr_interrupt_enable(TMR1, TMR_C3_INT, TRUE);
@@ -275,7 +286,7 @@ void DMAInit() {
 	dma_reset(DMA1_CHANNEL3);
 	dma_init_struct.buffer_size = BUFF_SIZE;
 	dma_init_struct.direction = DMA_DIR_MEMORY_TO_PERIPHERAL;
-	dma_init_struct.memory_base_addr = (uint32_t)srcBufferC;
+	dma_init_struct.memory_base_addr = (uint32_t)srcBufferB;
 	//	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_WORD;
 	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_HALFWORD;
 	dma_init_struct.memory_inc_enable = TRUE;
@@ -308,7 +319,7 @@ void DMAInit() {
     	dma_reset(DMA1_CHANNEL6);
     	dma_init_struct.buffer_size = BUFF_SIZE;
     	dma_init_struct.direction = DMA_DIR_MEMORY_TO_PERIPHERAL;
-    	dma_init_struct.memory_base_addr = (uint32_t)srcBufferB;
+    	dma_init_struct.memory_base_addr = (uint32_t)srcBufferC;
     //	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_WORD;
     	dma_init_struct.memory_data_width = DMA_MEMORY_DATA_WIDTH_HALFWORD;
     	dma_init_struct.memory_inc_enable = TRUE;
@@ -418,7 +429,7 @@ void TMR_Compare_Init() {
 		  /* systemclock/ div / tmr value = f (hz) */
 		  // tmr_base_init(TMR1, tmr value, (crm_clocks_freq_struct.ahb_freq / n) - 1);
 	//	  OSNOVNAYA NSTROIKA TAIMERA NE YDALYAT
-		  tmr_base_init(TMR2, 626, 0);
+		  tmr_base_init(TMR2, 7199, 0);
 	//	  tmr_base_init(TMR1, 248, (crm_clocks_freq_struct.ahb_freq / 10000000) - 1);
 		  tmr_cnt_dir_set(TMR2, TMR_COUNT_UP);
 
@@ -464,9 +475,12 @@ void TMR2_GLOBAL_IRQHandler() {
 		srcBufferB[PhaseIndex] > srcBufferC[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
 		srcBufferC[PhaseIndex] > srcBufferA[PhaseIndex] ? (void)(GPIOA->scr = GPIO_PINS_4) : (void)(GPIOA->clr = GPIO_PINS_4);
 
+//		PhaseA > PhaseB ? (void)(GPIOA->scr = GPIO_PINS_6) : (void)(GPIOA->clr = GPIO_PINS_6);
+//		PhaseB > PhaseC ? (void)(GPIOA->scr = GPIO_PINS_5) : (void)(GPIOA->clr = GPIO_PINS_5);
+//		PhaseC > PhaseA ? (void)(GPIOA->scr = GPIO_PINS_4) : (void)(GPIOA->clr = GPIO_PINS_4);
 		PhaseIndex += 1;
 		if (PhaseIndex >= 50)
-			PhaseIndex = 0
+			PhaseIndex = 0;
 		tmr_flag_clear(TMR2, TMR_OVF_FLAG);
 	}
 }
@@ -520,13 +534,14 @@ void Compare_Pins_Init() {
 int main(void)
 {
 //	after reset HICK is default
-//  system_clock_config();
+  system_clock_config();
 
   at32_board_init();
 
-  StatusLedInit();
 
-//   PWMPinsInit();
+//  StatusLedInit();
+
+   PWMPinsInit();
   tmr1_config();
   DMAInit();
 
@@ -538,7 +553,8 @@ int main(void)
   dma_channel_enable(DMA1_CHANNEL3, TRUE);
   dma_channel_enable(DMA1_CHANNEL6, TRUE);
 
-  tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_1, TRUE);
+//  tmr_channel_enable(TMR3, TMR_SELECT_CHANNEL_3, TRUE);
+  tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_1C, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_2C, TRUE);
   tmr_channel_enable(TMR1, TMR_SELECT_CHANNEL_3C, TRUE);
   tmr_output_enable(TMR1, TRUE);
